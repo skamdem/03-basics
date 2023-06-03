@@ -10,7 +10,6 @@ terraform {
     region         = "us-east-1"
     dynamodb_table = "devops-demos-tfstate-lock"
     encrypt        = true
-    #profile       = "default"
   }
 
   required_providers {
