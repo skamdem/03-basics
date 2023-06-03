@@ -1,6 +1,7 @@
-# resources of aws provider for tfstate management
+# infrastructure needed for the remote backend 
+# inside of aws provider for tfstate management
 
-# versioned and encrypted s3 Bucket is used for storage
+# versioned and encrypted s3 Bucket is used for storage of the state file
 resource "aws_s3_bucket" "tf_remote_state_bucket" {
   bucket = "devops-demos-terraform-state-bucket"
   lifecycle {
@@ -50,7 +51,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "tf_remote_state_b
   }
 }
 
-# DynamoDB is used for locking
+# DynamoDB is used for locking/unlocking 
+# the state so that we can apply safely
+# without 2 separate applies happening 
+# at the same time
 resource "aws_dynamodb_table" "tf_remote_state_bucket_locking" {
   hash_key     = "LockID"
   name         = "devops-demos-tfstate-lock"
