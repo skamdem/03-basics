@@ -91,7 +91,7 @@ resource "aws_lb_listener_rule" "custom_rule" {
 }
 
 resource "aws_lb_target_group" "main_target_group" {
-  name     = "exaample-target-group"
+  name     = "main-target-group"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default_vpc.id
