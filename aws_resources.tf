@@ -2,7 +2,7 @@
 
 # Route53 section
 data "aws_route53_zone" "my_zone" {
-  name = "skamdem.com"
+  name = "skamdem.dev"
 }
 
 resource "aws_route53_record" "devops_subdomain" {
