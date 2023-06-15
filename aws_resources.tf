@@ -2,12 +2,12 @@
 
 # Route53 section
 data "aws_route53_zone" "my_zone" {
-  name = "skamdem.dev"
+  name = var.domain
 }
 
 resource "aws_route53_record" "devops_subdomain" {
   zone_id = data.aws_route53_zone.my_zone.id
-  name    = "devops.${data.aws_route53_zone.my_zone.name}"
+  name    = "${var.subdomain}.${data.aws_route53_zone.my_zone.name}"
   type    = "A"
 
   alias {
@@ -160,7 +160,7 @@ resource "aws_instance" "instance_2" {
 
 # s3 bucket section
 resource "aws_s3_bucket" "web_app_bucket" {
-  bucket_prefix = "devops-web-app-bucket"
+  bucket_prefix = var.bucket_prefix
   force_destroy = true
 }
 
