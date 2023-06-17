@@ -26,7 +26,7 @@ $ terraform destroy // cleanup on project completion
 | Fine name | Contents |
 | ------------ | ------------- |
 | aws_resources.tf | resources |
-| main.tf | terraform setup |
+| config.tf | terraform setup |
 | outputs.tf | outputs |
 | providers.tf | list of providers |
 | terraform.tfvars | actual values of variable |
