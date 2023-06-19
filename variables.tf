@@ -23,7 +23,7 @@ variable "instance_type" {
 # S3 variables
 variable "bucket_prefix" {
   type        = string
-  description = "The prefix of s3 bucket fro app data."
+  description = "The prefix of s3 bucket for app data."
 }
 
 # Route 53 variables
