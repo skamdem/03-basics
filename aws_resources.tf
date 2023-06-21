@@ -5,8 +5,12 @@ data "aws_route53_zone" "my_zone" {
   name = var.domain
 }
 
-resource "aws_route53_record" "devops_subdomain" {
+locals {
   zone_id = data.aws_route53_zone.my_zone.id
+}
+
+resource "aws_route53_record" "devops_subdomain" {
+  zone_id = local.zone_id
   name    = "${var.subdomain}.${data.aws_route53_zone.my_zone.name}"
   type    = "A"
 
@@ -31,16 +35,43 @@ data "aws_subnets" "set_of_subnet_ids" { # assumed public subnets
 
 resource "aws_security_group" "alb_sg" {
   name = "alb-security-group"
+  tags = {
+    Name        = "${data.aws_vpc.default_vpc.tags["Name"]}-alb sg"
+    "Terraform" = "Yes"
+  }
 }
 
-resource "aws_security_group_rule" "allow_alb_http_inbound" {
+resource "aws_security_group_rule" "alb_ingress_rules" {
+  count = length(var.alb_ingress_rules)
+
   type              = "ingress"
   security_group_id = aws_security_group.alb_sg.id
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
+
+  from_port   = var.alb_ingress_rules[count.index].from_port
+  to_port     = var.alb_ingress_rules[count.index].to_port
+  protocol    = var.alb_ingress_rules[count.index].protocol
+  cidr_blocks = [var.alb_ingress_rules[count.index].cidr_blocks]
+  description = var.alb_ingress_rules[count.index].description
 }
+# resource "aws_security_group_rule" "allow_alb_http_inbound" {
+#   type              = "ingress"
+#   security_group_id = aws_security_group.alb_sg.id
+#   from_port         = 80
+#   to_port           = 80
+#   protocol          = "tcp"
+#   cidr_blocks       = ["0.0.0.0/0"]
+#   description       = "ordinary request"
+# }
+
+# resource "aws_security_group_rule" "allow_alb_https_inbound" {
+#   type              = "ingress"
+#   security_group_id = aws_security_group.alb_sg.id
+#   from_port         = 443
+#   to_port           = 443
+#   protocol          = "tcp"
+#   cidr_blocks       = ["0.0.0.0/0"]
+#   description       = "encrypted request"  
+# }
 
 resource "aws_security_group_rule" "allow_alb_all_outbound" {
   type              = "egress"
@@ -74,7 +105,41 @@ resource "aws_lb_listener" "http_listener" {
   }
 }
 
-resource "aws_lb_listener_rule" "custom_rule" {
+resource "aws_lb_listener" "https_listener" {
+  load_balancer_arn = aws_lb.load_balancer.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = module.acm.acm_certificate_arn
+
+  default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Sorry nothing here -:)"
+      status_code  = "200"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "custom_rule_https" {
+  listener_arn = aws_lb_listener.https_listener.arn
+  priority     = 50
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.main_target_group.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "custom_rule_http" {
   listener_arn = aws_lb_listener.http_listener.arn
   priority     = 50
 
@@ -124,6 +189,10 @@ resource "aws_lb_target_group_attachment" "instance_2" {
 # security group for the 2 instances
 resource "aws_security_group" "instances_sg" {
   name = "instance-security-group"
+  tags = {
+    Name        = "${data.aws_vpc.default_vpc.tags["Name"]}-instances sg"
+    "Terraform" = "Yes"
+  }
 }
 
 resource "aws_security_group_rule" "allow_instance_http_inbound" {

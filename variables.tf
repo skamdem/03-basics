@@ -7,6 +7,31 @@ variable "region" {
   description = "Default region for provider"
 }
 
+# ALB variables
+variable "alb_ingress_rules" {
+  type = list(object({
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = string
+    description = string
+  }))
+  default = [
+    { from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+      description = "ordinary request"
+    },
+    { from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+      description = "encrypted request"
+    },
+  ]
+}
+
 # EC2 variables
 variable "instance_ami" {
   type        = string
