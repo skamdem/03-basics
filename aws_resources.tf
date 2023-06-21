@@ -137,8 +137,12 @@ resource "aws_security_group_rule" "allow_instance_http_inbound" {
 
 
 resource "aws_instance" "instance_1" {
-  ami             = var.instance_ami  # Ubuntu 22.04 LTS
-  instance_type   = var.instance_type # "t2.micro"
+  ami           = var.instance_ami  # Ubuntu 22.04 LTS
+  instance_type = var.instance_type # "t2.micro"
+  tags = {
+    Name        = "${var.subdomain}-_1"
+    "Terraform" = "Yes"
+  }
   security_groups = [aws_security_group.instances_sg.name]
   user_data       = <<-EOF
             #!bin/bash
@@ -148,8 +152,12 @@ resource "aws_instance" "instance_1" {
 }
 
 resource "aws_instance" "instance_2" {
-  ami             = var.instance_ami  # Ubuntu 22.04 LTS
-  instance_type   = var.instance_type # "t2.micro"
+  ami           = var.instance_ami  # Ubuntu 22.04 LTS
+  instance_type = var.instance_type # "t2.micro"
+  tags = {
+    Name        = "${var.subdomain}-_2"
+    "Terraform" = "Yes"
+  }
   security_groups = [aws_security_group.instances_sg.name]
   user_data       = <<-EOF
             #!bin/bash
