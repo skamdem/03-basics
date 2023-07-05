@@ -1,7 +1,7 @@
 # terraform setup
 
 terraform {
-  required_version = "~> 1.5.0" # i.e. >= 1.5.0, < 1.6
+  required_version = "~> 1.5.1" # i.e. >= 1.5.0, < 1.6
 
   # Remote backend specified as S3 bucket
   backend "s3" {
@@ -15,7 +15,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 5.4.0"
+      version = ">= 5.6.2"
     }
   }
 }
